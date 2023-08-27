@@ -9,11 +9,207 @@ public class MinimaxAI
         return row * matrixSize + col;
     }
     // Hàm ?ánh giá tr?ng thái c?a trò ch?i Tic Tac Toe
-    public static int EvaluateBoard(List<int> matrixCell,int mapSize,int numCheck,int row,int col)
+    //public static int EvaluateBoard(List<int> matrixCell,int mapSize,int numCheck,int row,int col)
+    //{
+    //    int count = 1;
+    //    int indexSelect = CalIndexInList(row, col, mapSize);
+
+    //    //Check hang doc
+    //    for (int i = row - 1; i >= row - numCheck; i--)
+    //    {
+    //        if (i < 0)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(i, col, mapSize);
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+    //    for (int i = row + 1; i <= row + numCheck; i++)
+    //    {
+    //        if (i >= mapSize)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(i, col, mapSize);
+
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+
+    //    if (count >= numCheck)
+    //    {
+    //        if (matrixCell[indexSelect] == 1)
+    //        {
+    //            return -10;
+    //        }
+    //        else
+    //        {
+    //            return 10;
+    //        }
+    //    }
+    //    //Check hang ngang
+    //    count = 1;
+    //    for (int i = col - 1; i >= col - numCheck; i--)
+    //    {
+    //        if (i < 0)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(row, i, mapSize);
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+    //    for (int i = col + 1; i <= col + numCheck; i++)
+    //    {
+    //        if (i >= mapSize)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(row, i, mapSize);
+
+    //        if (matrixCell[CalIndexInList(row, i, mapSize)] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+
+    //    if (count >= numCheck)
+    //    {
+    //        if (matrixCell[indexSelect] == 1)
+    //        {
+    //            return -10;
+    //        }
+    //        else
+    //        {
+    //            return 10;
+    //        }
+    //    }
+    //    //Check hang cheo 1
+    //    count = 1;
+    //    for (int i = 1; i < numCheck; i++)
+    //    {
+    //        if (row - i < 0 || col - i < 0)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(row - i, col - i, mapSize);
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+    //    for (int i = 1; i < numCheck; i++)
+    //    {
+    //        if (row + i >= mapSize || col + i >= mapSize)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(row + i, col + i, mapSize);
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+
+    //    if (count >= numCheck)
+    //    {
+    //        if (matrixCell[indexSelect] == 1)
+    //        {
+    //            return -10;
+    //        }
+    //        else
+    //        {
+    //            return 10;
+    //        }
+    //    }
+    //    //Check hang cheo 2
+    //    count = 1;
+    //    for (int i = 1; i < numCheck; i++)
+    //    {
+
+    //        if (row - i < 0 || col + i >= mapSize)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(row - i, col + i, mapSize);
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+    //    for (int i = 1; i < numCheck; i++)
+    //    {
+    //        if (row + i >= mapSize || col - i < 0)
+    //        {
+    //            break;
+    //        }
+    //        int index = CalIndexInList(row + i, col - i, mapSize);
+    //        if (matrixCell[index] == matrixCell[indexSelect])
+    //        {
+    //            count += 1;
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
+    //    if (count >= numCheck)
+    //    {
+    //        if (matrixCell[indexSelect] == 1)
+    //        {
+    //            return -10;
+    //        }
+    //        else
+    //        {
+    //            return 10;
+    //        }
+    //    }
+    //    return 0;
+    //}
+
+    public static int EvaluateBoard(List<int> matrixCell, int mapSize, int numCheck, int row, int col)
     {
         int count = 1;
         int indexSelect = CalIndexInList(row, col, mapSize);
-     
+        int point = 0;
+        bool isContinue=true;
         //Check hang doc
         for (int i = row - 1; i >= row - numCheck; i--)
         {
@@ -24,13 +220,27 @@ public class MinimaxAI
             int index = CalIndexInList(i, col, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point-=matrixCell[index]*2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if(0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
+        isContinue = true;
         for (int i = row + 1; i <= row + numCheck; i++)
         {
             if (i >= mapSize)
@@ -41,12 +251,24 @@ public class MinimaxAI
 
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
-
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
 
@@ -54,31 +276,47 @@ public class MinimaxAI
         {
             if (matrixCell[indexSelect] == 1)
             {
-                return -10;
+                return -100;
             }
             else
             {
-                return 10;
+                return 100;
             }
         }
         //Check hang ngang
         count = 1;
+        isContinue = true;
         for (int i = col - 1; i >= col - numCheck; i--)
         {
-            if (i < 0)
+            if (i<0)
             {
                 break;
             }
+           
             int index = CalIndexInList(row, i, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
+        isContinue = true;
         for (int i = col + 1; i <= col + numCheck; i++)
         {
             if (i >= mapSize)
@@ -87,13 +325,26 @@ public class MinimaxAI
             }
             int index = CalIndexInList(row, i, mapSize);
 
-            if (matrixCell[CalIndexInList(row, i, mapSize)] == matrixCell[indexSelect])
+            if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
 
@@ -101,15 +352,17 @@ public class MinimaxAI
         {
             if (matrixCell[indexSelect] == 1)
             {
-                return -10;
+                return -100;
             }
             else
             {
-                return 10;
+                return 100;
             }
         }
+
         //Check hang cheo 1
         count = 1;
+        isContinue = true;
         for (int i = 1; i < numCheck; i++)
         {
             if (row - i < 0 || col - i < 0)
@@ -119,13 +372,27 @@ public class MinimaxAI
             int index = CalIndexInList(row - i, col - i, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
+        isContinue = true;
         for (int i = 1; i < numCheck; i++)
         {
             if (row + i >= mapSize || col + i >= mapSize)
@@ -135,12 +402,24 @@ public class MinimaxAI
             int index = CalIndexInList(row + i, col + i, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
-
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
 
@@ -148,15 +427,17 @@ public class MinimaxAI
         {
             if (matrixCell[indexSelect] == 1)
             {
-                return -10;
+                return -100;
             }
             else
             {
-                return 10;
+                return 100;
             }
         }
+
         //Check hang cheo 2
         count = 1;
+        isContinue = true;
         for (int i = 1; i < numCheck; i++)
         {
 
@@ -167,13 +448,27 @@ public class MinimaxAI
             int index = CalIndexInList(row - i, col + i, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
+        isContinue = true;
         for (int i = 1; i < numCheck; i++)
         {
             if (row + i >= mapSize || col - i < 0)
@@ -183,25 +478,40 @@ public class MinimaxAI
             int index = CalIndexInList(row + i, col - i, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
-                count += 1;
+                if (isContinue)
+                {
+                    count += 1;
+                }
+                point -= matrixCell[index] * 2;
             }
             else
             {
-                break;
+                isContinue = false;
+                if (0 != matrixCell[index])
+                {
+                    point -= matrixCell[index];
+                    break;
+                }
+                else
+                {
+                    point -= matrixCell[indexSelect];
+                }
             }
         }
+
         if (count >= numCheck)
         {
             if (matrixCell[indexSelect] == 1)
             {
-                return -10;
+                return -100;
             }
             else
             {
-                return 10;
+                return 100;
             }
         }
-        return 0;
+
+        return point;
     }
 
     // Hàm tìm n??c ?i t?i ?u cho AI b?ng thu?t toán Minimax
@@ -209,11 +519,11 @@ public class MinimaxAI
     {
         int score = EvaluateBoard(matrix,mapSize,numCheck,row,col);
 
-        if (score == 10)
+        if (score== 100)
         {
             return score+depth;
         }
-        if (score == -10)
+        if (score ==-100)
         {
             return score - depth;
         }
