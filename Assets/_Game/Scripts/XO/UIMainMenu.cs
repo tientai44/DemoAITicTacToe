@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class UIMainMenu : MonoBehaviour
@@ -51,5 +52,23 @@ public class UIMainMenu : MonoBehaviour
         GameManager.instance.ChooseMap(IndexMapSelected,GameMode.PVP);
         gameObject.SetActive(false);
     }
-    
+    public void OnClickHost()
+    {
+        NetworkManager.Singleton.StartHost();
+        GameManager.instance.ChooseMap(IndexMapSelected, GameMode.PVPO);
+        gameObject.SetActive(false);
+    }
+
+    public void OnClickJoin()
+    {
+        StartCoroutine(Join());
+        GameManager.instance.ChooseMap(IndexMapSelected, GameMode.PVPO);
+        gameObject.SetActive(false);
+    }
+    private IEnumerator Join()
+    {
+        NetworkManager.Singleton.StartClient();
+        yield return null;
+
+    }
 }

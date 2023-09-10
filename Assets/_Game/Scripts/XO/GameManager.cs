@@ -8,7 +8,7 @@ public enum TurnState
 }
 public enum GameMode
 {
-    PVB, PVP
+    PVB, PVP , PVPO
 }
 
 public enum GameState

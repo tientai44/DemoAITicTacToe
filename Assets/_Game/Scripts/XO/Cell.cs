@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,7 +8,7 @@ public enum CellType
 {
     X,O,empty
 }
-public class Cell : MonoBehaviour, IPointerClickHandler
+public class Cell : NetworkBehaviour, IPointerClickHandler
 {
     CellType state= CellType.empty;
     [SerializeField]SpriteRenderer visibleSprite;
@@ -16,6 +17,8 @@ public class Cell : MonoBehaviour, IPointerClickHandler
     [SerializeField] Sprite spriteO;
     [SerializeField] int row, col;
     [SerializeField] LineRenderer lineRenderer;
+    [SerializeField] private NetworkVariable<float> val= new NetworkVariable<float>();
+    private float oldVal;
     private Transform tf;
     public Transform TF
     {
@@ -34,6 +37,17 @@ public class Cell : MonoBehaviour, IPointerClickHandler
     {
         row = _row;
         col = _col;
+    }
+    private void Update()
+    {
+        if (IsServer)
+        {
+            if (val.Value==1)
+            {
+                Tick(CellType.X);
+            }
+         
+        }
     }
     public void OnInit()
     {
@@ -80,7 +94,19 @@ public class Cell : MonoBehaviour, IPointerClickHandler
     }
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(GameManager.instance.state is not GameState.Playing)
+        Debug.Log("Click");
+        if (GameManager.instance.gameMode is GameMode.PVPO)
+        {
+            Debug.Log("Click2");
+            if(oldVal == 0)
+            {
+                oldVal = 1;
+                
+            }
+            Debug.Log("Click3");
+            return;
+        }
+        if (GameManager.instance.state is not GameState.Playing)
         {
             return;
         }
@@ -98,6 +124,28 @@ public class Cell : MonoBehaviour, IPointerClickHandler
             }
         }
         else if (GameManager.instance.gameMode is GameMode.PVP)
+        {
+            Tick(CellType.O);
+            GameManager.instance.ChangeState(TurnState.Player1);
+        }
+    }
+    [ServerRpc]
+    public void TickServerRpc(float value)
+    {
+        val.Value = value;
+        Debug.Log("TickServerRpc");
+        TickClientRpc();
+    }
+    [ClientRpc]
+    public void TickClientRpc()
+    {
+        Debug.Log("TickClientRpc");
+        if (GameManager.instance.turnState is TurnState.Player1)
+        {
+            Tick(CellType.X);
+            GameManager.instance.ChangeState(TurnState.Player2);
+        }
+        else
         {
             Tick(CellType.O);
             GameManager.instance.ChangeState(TurnState.Player1);
