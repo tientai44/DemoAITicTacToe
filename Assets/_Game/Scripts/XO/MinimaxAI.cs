@@ -605,18 +605,22 @@ public class MinimaxAI
             for (int j = 0; j < mapSize; j++)
             {
                 int index = CalIndexInList(i, j, mapSize);
-                if (matrix[index]==0)
+                if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
                 {
-                    matrix[index] = -1; // ?i?m cho n??c ?i AI
-                    int moveScore = MiniMax(matrix,mapSize,numCheck, i,j,depth, false); // Tính ?i?m cho n??c ?i
-                    Debug.Log(moveScore.ToString() + " " + i.ToString() + " " + j.ToString());
-                    matrix[index]  = 0; // H?y n??c ?i t?m th?i
-                    if (moveScore > bestScore)
+                    if (matrix[index] == 0)
                     {
-                        bestScore = moveScore;
-                        bestMoveX = i;
-                        bestMoveY = j;
 
+                        matrix[index] = -1; // ?i?m cho n??c ?i AI
+                        int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth, false); // Tính ?i?m cho n??c ?i
+                        Debug.Log(moveScore.ToString() + " " + i.ToString() + " " + j.ToString());
+                        matrix[index] = 0; // H?y n??c ?i t?m th?i
+                        if (moveScore > bestScore)
+                        {
+                            bestScore = moveScore;
+                            bestMoveX = i;
+                            bestMoveY = j;
+
+                        }
                     }
                 }
             }
@@ -628,5 +632,32 @@ public class MinimaxAI
         GameManager.instance.GetCell(bestMoveX, bestMoveY).Tick(CellType.O);
         //// Th?c hi?n n??c ?i t?i ?u c?a AI
         //MakeMove(bestMoveX, bestMoveY, 1); // ?ánh d?u ô t?i t?a ?? (bestMoveX, bestMoveY) v?i giá tr? 1 (AI)
+    }
+    public static bool IsGoodCell(List<int> matrix, int mapSize, int numCheck,int row,int col,int sizeCheck)
+    {
+        int indexSelect = CalIndexInList(row, col, mapSize);
+
+        for(int i=-sizeCheck; i < sizeCheck; i++)
+        {
+            for (int j = -sizeCheck; j < sizeCheck; j++)
+            {
+                if(i==0 && j == 0)
+                {
+                    continue;
+                }
+                if (row + i < 0 || col + j < 0||row+i>=mapSize||col+j>=mapSize)
+                {
+                    continue;
+                }
+                int index = CalIndexInList(row+i, col+j, mapSize);
+                //Debug.Log(index.ToString() +" "+(row+i).ToString()+" "+(col+i).ToString());
+                if (matrix[index] != 0)
+                {
+                    return true;
+                }
+            }
+        }
+       
+        return false;
     }
 }
