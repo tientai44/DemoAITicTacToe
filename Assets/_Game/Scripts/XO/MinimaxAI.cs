@@ -209,7 +209,7 @@ public class MinimaxAI
         int count = 1;
         int indexSelect = CalIndexInList(row, col, mapSize);
         int point = 0;
-        bool isContinue=true;
+        bool isContinue = true;
         //Check hang doc
         for (int i = row - 1; i >= row - numCheck; i--)
         {
@@ -224,12 +224,12 @@ public class MinimaxAI
                 {
                     count += 1;
                 }
-                point-=matrixCell[index]*2;
+                point -= matrixCell[index] * 2;
             }
             else
             {
                 isContinue = false;
-                if(0 != matrixCell[index])
+                if (0 != matrixCell[index])
                 {
                     point -= matrixCell[index];
                     break;
@@ -288,11 +288,11 @@ public class MinimaxAI
         isContinue = true;
         for (int i = col - 1; i >= col - numCheck; i--)
         {
-            if (i<0)
+            if (i < 0)
             {
                 break;
             }
-           
+
             int index = CalIndexInList(row, i, mapSize);
             if (matrixCell[index] == matrixCell[indexSelect])
             {
@@ -515,19 +515,19 @@ public class MinimaxAI
     }
 
     // Hàm tìm n??c ?i t?i ?u cho AI b?ng thu?t toán Minimax
-    public static int MiniMax(List<int> matrix,int mapSize,int numCheck,int row,int col, int depth, bool isMaximizing)
+    public static int MiniMax(List<int> matrix, int mapSize, int numCheck, int row, int col, int depth, bool isMaximizing)
     {
-        int score = EvaluateBoard(matrix,mapSize,numCheck,row,col);
+        int score = EvaluateBoard(matrix, mapSize, numCheck, row, col);
 
-        if (score== 100)
+        if (score == 100)
         {
-            return score+depth;
+            return score + depth;
         }
-        if (score ==-100)
+        if (score == -100)
         {
             return score - depth;
         }
-        if(depth == 0)
+        if (depth == 0)
         {
             return score;
         }
@@ -559,10 +559,13 @@ public class MinimaxAI
                     int index = CalIndexInList(i, j, mapSize);
                     if (matrix[index] == 0)
                     {
-                        matrix[index] = -1;
-                        int moveScore = MiniMax(matrix,mapSize,numCheck,i,j, depth - 1, false);
-                        matrix[index] = 0;
-                        bestScore = Mathf.Max(bestScore, moveScore);
+                        if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
+                        {
+                            matrix[index] = -1;
+                            int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth - 1, false);
+                            matrix[index] = 0;
+                            bestScore = Mathf.Max(bestScore, moveScore);
+                        }
                     }
                 }
             }
@@ -578,12 +581,16 @@ public class MinimaxAI
                 for (int j = 0; j < mapSize; j++)
                 {
                     int index = CalIndexInList(i, j, mapSize);
+
                     if (matrix[index] == 0)
                     {
-                        matrix[index] = 1;
-                        int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth - 1, true);
-                        matrix[index] = 0;
-                        bestScore = Mathf.Min(bestScore, moveScore);
+                        if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
+                        {
+                            matrix[index] = 1;
+                            int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth - 1, true);
+                            matrix[index] = 0;
+                            bestScore = Mathf.Min(bestScore, moveScore);
+                        }
 
                     }
                 }
@@ -597,19 +604,19 @@ public class MinimaxAI
     public static void MakeAIMove(List<int> matrix, int mapSize, int numCheck, int depth)
     {
         int bestScore = -1000;
-        int bestMoveX=-1;
-        int bestMoveY=-1;
+        int bestMoveX = -1;
+        int bestMoveY = -1;
         // Xác ??nh n??c ?i t?i ?u cho AI
         for (int i = 0; i < mapSize; i++)
         {
             for (int j = 0; j < mapSize; j++)
             {
                 int index = CalIndexInList(i, j, mapSize);
-                if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
-                {
-                    if (matrix[index] == 0)
-                    {
 
+                if (matrix[index] == 0)
+                {
+                    if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
+                    {
                         matrix[index] = -1; // ?i?m cho n??c ?i AI
                         int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth, false); // Tính ?i?m cho n??c ?i
                         Debug.Log(moveScore.ToString() + " " + i.ToString() + " " + j.ToString());
@@ -623,6 +630,7 @@ public class MinimaxAI
                         }
                     }
                 }
+
             }
         }
         if (bestMoveX < 0 || bestMoveY < 0)
@@ -633,23 +641,23 @@ public class MinimaxAI
         //// Th?c hi?n n??c ?i t?i ?u c?a AI
         //MakeMove(bestMoveX, bestMoveY, 1); // ?ánh d?u ô t?i t?a ?? (bestMoveX, bestMoveY) v?i giá tr? 1 (AI)
     }
-    public static bool IsGoodCell(List<int> matrix, int mapSize, int numCheck,int row,int col,int sizeCheck)
+    public static bool IsGoodCell(List<int> matrix, int mapSize, int numCheck, int row, int col, int sizeCheck)
     {
         int indexSelect = CalIndexInList(row, col, mapSize);
 
-        for(int i=-sizeCheck; i < sizeCheck; i++)
+        for (int i = -sizeCheck; i < sizeCheck; i++)
         {
             for (int j = -sizeCheck; j < sizeCheck; j++)
             {
-                if(i==0 && j == 0)
+                if (i == 0 && j == 0)
                 {
                     continue;
                 }
-                if (row + i < 0 || col + j < 0||row+i>=mapSize||col+j>=mapSize)
+                if (row + i < 0 || col + j < 0 || row + i >= mapSize || col + j >= mapSize)
                 {
                     continue;
                 }
-                int index = CalIndexInList(row+i, col+j, mapSize);
+                int index = CalIndexInList(row + i, col + j, mapSize);
                 //Debug.Log(index.ToString() +" "+(row+i).ToString()+" "+(col+i).ToString());
                 if (matrix[index] != 0)
                 {
@@ -657,7 +665,7 @@ public class MinimaxAI
                 }
             }
         }
-       
+
         return false;
     }
 }
