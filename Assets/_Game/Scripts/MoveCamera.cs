@@ -4,7 +4,18 @@ using UnityEngine;
 
 public class MoveCamera : MonoBehaviour
 {
+    public static MoveCamera Instance;
     public float sensitivity = 2.0f;
+    private Vector3 intialPos;
+    private void Awake()
+    {
+        Instance = this;
+        intialPos = transform.position;
+    }
+    public void OnInit()
+    {
+        transform.position = intialPos;
+    }
 
     void Update()
     {

@@ -51,6 +51,7 @@ public class GameManager : MonoBehaviour
     }
     public void ChooseMap(int index,GameMode _gameMode,int mapSize=0,int winSize=5)
     {
+        MoveCamera.Instance.OnInit();
         MinimaxAI.goodCellList.Clear();
         if(currentSelect == 3)
         {
@@ -100,7 +101,7 @@ public class GameManager : MonoBehaviour
         {
             for(int j = 0; j < size; j++)
             {
-                Vector3 pos = new Vector3(-size/ 2+i,-size / 2+j,0);
+                Vector3 pos = new Vector3(-size/ 2+j,size / 2-i,0);
                 Cell cell = Instantiate(cellprefab,pos,Quaternion.identity,currentMap.transform);
                 cell.OnInit();
                 cell.SetPos(i, j);
