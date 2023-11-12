@@ -5,38 +5,46 @@ using UnityEngine.EventSystems;
 
 public enum CellType
 {
-    X,O,empty
+    X, O, empty
 }
-public class Cell : MonoBehaviour, IPointerClickHandler
+public class Cell : MonoBehaviour
 {
-    CellType state= CellType.empty;
-    [SerializeField]SpriteRenderer visibleSprite;
+    CellType state = CellType.empty;
+    [SerializeField] GameObject hint;
+    [SerializeField] SpriteRenderer visibleSprite;
     [SerializeField] SpriteRenderer frameSprite;
     [SerializeField] Sprite spriteX;
     [SerializeField] Sprite spriteO;
     [SerializeField] int row, col;
     [SerializeField] LineRenderer lineRenderer;
+    private static Cell prevCell;
     private Transform tf;
     public Transform TF
     {
-        get {
+        get
+        {
             if (tf == null)
             {
                 tf = transform;
             }
-            return tf; }  
+            return tf;
+        }
     }
+
+    public CellType State { get => state; set => state = value; }
+
     private void Awake()
     {
         OnInit();
     }
-    public void SetPos(int _row,int _col)
+    public void SetPos(int _row, int _col)
     {
         row = _row;
         col = _col;
     }
     public void OnInit()
     {
+        ActiveHine(false);
         lineRenderer.enabled = false;
         state = CellType.empty;
         frameSprite.color = Color.black;
@@ -44,7 +52,12 @@ public class Cell : MonoBehaviour, IPointerClickHandler
     }
     public void Tick(CellType cellType)
     {
-
+        if (prevCell)
+        {
+            prevCell.ActiveHine(false);
+        }
+        prevCell = this;
+        prevCell.ActiveHine(true);
         state = cellType;
         switch (state)
         {
@@ -65,7 +78,11 @@ public class Cell : MonoBehaviour, IPointerClickHandler
                 break;
         }
     }
-    public void Connect(Cell cell,Color color)
+    public void ActiveHine(bool active)
+    {
+        hint.SetActive(active);
+    }
+    public void Connect(Cell cell, Color color)
     {
         Debug.Log(row.ToString() + " " + col.ToString());
         Debug.Log(cell.row.ToString() + " " + cell.col.ToString());
@@ -75,32 +92,8 @@ public class Cell : MonoBehaviour, IPointerClickHandler
         lineRenderer.startColor = color;
         lineRenderer.endColor = color;
         Vector3 direct = (cell.TF.position - TF.position).normalized;
-        lineRenderer.SetPosition(0, TF.position -direct);
-        lineRenderer.SetPosition(1, cell.TF.position+direct);
+        lineRenderer.SetPosition(0, TF.position - direct);
+        lineRenderer.SetPosition(1, cell.TF.position + direct);
     }
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if(GameManager.instance.state is not GameState.Playing)
-        {
-            return;
-        }
-        if (state != CellType.empty)
-        {
-            return;
-        }
-        if (GameManager.instance.turnState is TurnState.Player1)
-        {
-            Tick(CellType.X);
-            GameManager.instance.ChangeState(TurnState.Player2);
-            if (GameManager.instance.gameMode is GameMode.PVB)
-            {
-                GameManager.instance.AIMakeMove();
-            }
-        }
-        else if (GameManager.instance.gameMode is GameMode.PVP)
-        {
-            Tick(CellType.O);
-            GameManager.instance.ChangeState(TurnState.Player1);
-        }
-    }
+    
 }

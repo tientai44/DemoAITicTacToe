@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 public enum TurnState
 {
@@ -23,10 +24,13 @@ public class GameManager : MonoBehaviour
     public GameState state = GameState.Waiting;
     private Map currentMap;
     Cell cellStart, cellEnd;
+    [SerializeField] Cell cellprefab;
     [SerializeField] List<Map> maps;
     [SerializeField] List<Cell> cells = new List<Cell>();
     [SerializeField] List<int> matrixCell = new List<int>();
     [SerializeField] int currentSelect;
+    public Map Map { get { return currentMap; } }
+    public List<int> Matrix { get { return matrixCell; } }
     private void Awake()
     {
         instance = this;
@@ -43,10 +47,18 @@ public class GameManager : MonoBehaviour
     }
     public void ResetGame()
     {
-        ChooseMap(currentSelect,gameMode);
+        ChooseMap(currentSelect,gameMode,currentMap.mapSize,currentMap.winSize);
     }
-    public void ChooseMap(int index,GameMode _gameMode)
+    public void ChooseMap(int index,GameMode _gameMode,int mapSize=0,int winSize=5)
     {
+        MinimaxAI.goodCellList.Clear();
+        if(currentSelect == 3)
+        {
+            for(int i = 0; i < cells.Count; i++)
+            {
+                Destroy(cells[i].gameObject);
+            }
+        }
         if (currentMap != null)
         {
             currentMap.gameObject.SetActive(false);
@@ -59,12 +71,37 @@ public class GameManager : MonoBehaviour
         currentMap.gameObject.SetActive(true);
         cells.Clear();
         matrixCell.Clear();
-        for (int i = 0; i < currentMap.transform.childCount; i++)
+        if (index < 3)
         {
-            Transform row = currentMap.transform.GetChild(i);
-            for (int j = 0; j < row.childCount; j++)
+            for (int i = 0; i < currentMap.transform.childCount; i++)
             {
-                Cell cell = row.GetChild(j).GetComponent<Cell>();
+                Transform row = currentMap.transform.GetChild(i);
+                for (int j = 0; j < row.childCount; j++)
+                {
+                    Cell cell = row.GetChild(j).GetComponent<Cell>();
+                    cell.OnInit();
+                    cell.SetPos(i, j);
+                    cells.Add(cell);
+                    matrixCell.Add(0);
+                }
+            }
+        }
+        else
+        {
+            currentMap.mapSize = mapSize;
+            currentMap.winSize = winSize;
+            CustomizeMap();
+        }
+    }
+    public void CustomizeMap()
+    {
+        float size = currentMap.mapSize;
+        for (int i = 0; i < size; i++)
+        {
+            for(int j = 0; j < size; j++)
+            {
+                Vector3 pos = new Vector3(-size/ 2+i,-size / 2+j,0);
+                Cell cell = Instantiate(cellprefab,pos,Quaternion.identity,currentMap.transform);
                 cell.OnInit();
                 cell.SetPos(i, j);
                 cells.Add(cell);
@@ -323,11 +360,11 @@ public class GameManager : MonoBehaviour
         return false;
     }
     
-    public void AIMakeMove()
+    public async void AIMakeMove()
     {
         if (state is GameState.Playing)
         {
-            MinimaxAI.MakeAIMove(new List<int>(matrixCell), currentMap.mapSize, currentMap.winSize, 3);
+            await MinimaxAI.MakeAIMove(new List<int>(matrixCell), currentMap.mapSize, currentMap.winSize, 3);
             ChangeState(TurnState.Player1);
         }
     }

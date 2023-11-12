@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIMainMenu : MonoBehaviour
 {
     int IndexMapSelected;
     [SerializeField] RectTransform modeUI;
     [SerializeField] float speedMove=100;
-
+    [SerializeField] TMP_InputField inputField;
     public void NextMap()
     {
         if (IndexMapSelected < modeUI.childCount-1)
@@ -43,13 +45,46 @@ public class UIMainMenu : MonoBehaviour
     }
     public void PVBButton()
     {
-        GameManager.instance.ChooseMap(IndexMapSelected,GameMode.PVB);
+        if (IndexMapSelected < 3)
+        {
+            GameManager.instance.ChooseMap(IndexMapSelected, GameMode.PVB);
+        }
+        else
+        {
+            if (inputField.text.Length > 0)
+            {
+                int val = int.Parse(inputField.text);
+                if (val > 7)
+                {
+                    GameManager.instance.ChooseMap(IndexMapSelected, GameMode.PVB, int.Parse(inputField.text));
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
         gameObject.SetActive(false);
     }
     public void PVPButton()
     {
-        GameManager.instance.ChooseMap(IndexMapSelected,GameMode.PVP);
+        if (IndexMapSelected < 3)
+        {
+            GameManager.instance.ChooseMap(IndexMapSelected, GameMode.PVP);
+        }
+        else
+        {
+            if (inputField.text.Length > 0)
+            {
+                GameManager.instance.ChooseMap(IndexMapSelected, GameMode.PVP, int.Parse(inputField.text));
+            }
+            else
+            {
+                return;
+            }
+        }
         gameObject.SetActive(false);
+
     }
-    
+
 }

@@ -1,9 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MinimaxAI
 {
+    public static List<int> goodCellList = new List<int>();
+    public static void AddGoodCell(List<int> matrix, int mapSize, int numCheck, int row, int col, int sizeCheck)
+    {
+        //if (!goodCellList.Contains(indexCell))
+        {
+            goodCellList.AddRange(GetAroundCell(matrix, mapSize, numCheck, row, col, sizeCheck));
+        }
+    }
+    public static void RemoveGoodCell(int indexCell)
+    {
+        goodCellList.Add(indexCell);
+    }
     public static int CalIndexInList(int row, int col, int matrixSize)
     {
         return row * matrixSize + col;
@@ -514,7 +528,115 @@ public class MinimaxAI
         return point;
     }
 
-    // Hàm tìm n??c ?i t?i ?u cho AI b?ng thu?t toán Minimax
+    public static bool IsGoodCell(int indexCell)
+    {
+        return goodCellList.Contains(indexCell);
+    }
+    public static bool IsGoodCell(List<int> matrix, int mapSize, int numCheck, int row, int col, int sizeCheck)
+    {
+        int indexSelect = CalIndexInList(row, col, mapSize);
+
+        for (int i = -sizeCheck; i < sizeCheck; i++)
+        {
+            for (int j = -sizeCheck; j < sizeCheck; j++)
+            {
+                if (i == 0 && j == 0)
+                {
+                    continue;
+                }
+                if (row + i < 0 || col + j < 0 || row + i >= mapSize || col + j >= mapSize)
+                {
+                    continue;
+                }
+                int index = CalIndexInList(row + i, col + j, mapSize);
+                //Debug.Log(index.ToString() +" "+(row+i).ToString()+" "+(col+i).ToString());
+                if (matrix[index] != 0)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    public static List<int> GetAroundCell(List<int> matrix, int mapSize, int numCheck, int row, int col, int sizeCheck)
+    {
+        List<int> result = new List<int>();
+        int indexSelect = CalIndexInList(row, col, mapSize);
+
+        for (int i = -sizeCheck; i < sizeCheck; i++)
+        {
+            for (int j = -sizeCheck; j < sizeCheck; j++)
+            {
+                if (i == 0 && j == 0)
+                {
+                    continue;
+                }
+                if (row + i < 0 || col + j < 0 || row + i >= mapSize || col + j >= mapSize)
+                {
+                    continue;
+                }
+                int index = CalIndexInList(row + i, col + j, mapSize);
+                //Debug.Log(index.ToString() +" "+(row+i).ToString()+" "+(col+i).ToString());
+                if (matrix[index] == 0 && !goodCellList.Contains(index))
+                {
+                    result.Add(index);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static async Task MakeAIMove(List<int> matrix, int mapSize, int numCheck, int depth)
+    {
+        int bestScore = -1000;
+        int bestMoveX = -1;
+        int bestMoveY = -1;
+        await Task.Run(() =>
+        {
+
+            // Xác ??nh n??c ?i t?i ?u cho AI
+            for (int i = 0; i < mapSize; i++)
+            {
+                for (int j = 0; j < mapSize; j++)
+                {
+                    int index = CalIndexInList(i, j, mapSize);
+
+                    if (matrix[index] == 0)
+                    {
+                        if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
+                        {
+                            matrix[index] = -1; // ?i?m cho n??c ?i AI
+
+                            //List<int> aroundCell = GetAroundCell(matrix, mapSize, numCheck, i, j, 2);
+                            //goodCellList.AddRange(aroundCell);
+                            int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth, false); // Tính ?i?m cho n??c ?i
+                                                                                                    //Debug.Log(moveScore.ToString() + " " + i.ToString() + " " + j.ToString());
+                            matrix[index] = 0;
+                            //goodCellList.RemoveRange(goodCellList.Count - aroundCell.Count, aroundCell.Count);
+                            if (moveScore > bestScore)
+                            {
+                                bestScore = moveScore;
+                                bestMoveX = i;
+                                bestMoveY = j;
+
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        });
+        if (bestMoveX < 0 || bestMoveY < 0)
+        {
+            return;
+        }
+        GameManager.instance.GetCell(bestMoveX, bestMoveY).Tick(CellType.O);
+        //// Th?c hi?n n??c ?i t?i ?u c?a AI
+        //MakeMove(bestMoveX, bestMoveY, 1); // ?ánh d?u ô t?i t?a ?? (bestMoveX, bestMoveY) v?i giá tr? 1 (AI)
+    }
     public static int MiniMax(List<int> matrix, int mapSize, int numCheck, int row, int col, int depth, bool isMaximizing)
     {
         int score = EvaluateBoard(matrix, mapSize, numCheck, row, col);
@@ -561,9 +683,12 @@ public class MinimaxAI
                     {
                         if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
                         {
+                            //List<int> aroundCell = GetAroundCell(matrix, mapSize, numCheck, i, j, 2);
+                            //goodCellList.AddRange(aroundCell);
                             matrix[index] = -1;
                             int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth - 1, false);
                             matrix[index] = 0;
+                            //goodCellList.RemoveRange(goodCellList.Count - aroundCell.Count, aroundCell.Count);
                             bestScore = Mathf.Max(bestScore, moveScore);
                         }
                     }
@@ -586,9 +711,12 @@ public class MinimaxAI
                     {
                         if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
                         {
+                            //List<int> aroundCell = GetAroundCell(matrix, mapSize, numCheck, i, j, 2);
+                            //goodCellList.AddRange(aroundCell);
                             matrix[index] = 1;
                             int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth - 1, true);
                             matrix[index] = 0;
+                            //goodCellList.RemoveRange(goodCellList.Count - aroundCell.Count, aroundCell.Count);
                             bestScore = Mathf.Min(bestScore, moveScore);
                         }
 
@@ -600,72 +728,4 @@ public class MinimaxAI
         }
     }
 
-    // Hàm th?c hi?n n??c ?i c?a AI
-    public static void MakeAIMove(List<int> matrix, int mapSize, int numCheck, int depth)
-    {
-        int bestScore = -1000;
-        int bestMoveX = -1;
-        int bestMoveY = -1;
-        // Xác ??nh n??c ?i t?i ?u cho AI
-        for (int i = 0; i < mapSize; i++)
-        {
-            for (int j = 0; j < mapSize; j++)
-            {
-                int index = CalIndexInList(i, j, mapSize);
-
-                if (matrix[index] == 0)
-                {
-                    if (IsGoodCell(matrix, mapSize, numCheck, i, j, 2))
-                    {
-                        matrix[index] = -1; // ?i?m cho n??c ?i AI
-                        int moveScore = MiniMax(matrix, mapSize, numCheck, i, j, depth, false); // Tính ?i?m cho n??c ?i
-                        Debug.Log(moveScore.ToString() + " " + i.ToString() + " " + j.ToString());
-                        matrix[index] = 0; // H?y n??c ?i t?m th?i
-                        if (moveScore > bestScore)
-                        {
-                            bestScore = moveScore;
-                            bestMoveX = i;
-                            bestMoveY = j;
-
-                        }
-                    }
-                }
-
-            }
-        }
-        if (bestMoveX < 0 || bestMoveY < 0)
-        {
-            return;
-        }
-        GameManager.instance.GetCell(bestMoveX, bestMoveY).Tick(CellType.O);
-        //// Th?c hi?n n??c ?i t?i ?u c?a AI
-        //MakeMove(bestMoveX, bestMoveY, 1); // ?ánh d?u ô t?i t?a ?? (bestMoveX, bestMoveY) v?i giá tr? 1 (AI)
-    }
-    public static bool IsGoodCell(List<int> matrix, int mapSize, int numCheck, int row, int col, int sizeCheck)
-    {
-        int indexSelect = CalIndexInList(row, col, mapSize);
-
-        for (int i = -sizeCheck; i < sizeCheck; i++)
-        {
-            for (int j = -sizeCheck; j < sizeCheck; j++)
-            {
-                if (i == 0 && j == 0)
-                {
-                    continue;
-                }
-                if (row + i < 0 || col + j < 0 || row + i >= mapSize || col + j >= mapSize)
-                {
-                    continue;
-                }
-                int index = CalIndexInList(row + i, col + j, mapSize);
-                //Debug.Log(index.ToString() +" "+(row+i).ToString()+" "+(col+i).ToString());
-                if (matrix[index] != 0)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 }
